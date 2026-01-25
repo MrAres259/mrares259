@@ -1,0 +1,1024 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mr Ares | Miguel Santos</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;700&display=swap');
+
+        body, html {
+            margin: 0;
+            font-family: 'Rubik', sans-serif;
+            color: #FFFFFF;
+            overflow-x: hidden;
+            overflow-y: auto; 
+            cursor: none;
+            background-color: #1a1a1a;
+            scroll-behavior: smooth;
+        }
+
+        /* --- INTERACTIVE BUBBLE BACKGROUND --- */
+        .interactive-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .bubble {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.6;
+            will-change: transform;
+        }
+
+        .b1 {
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(88, 164, 176, 0.8) 0%, rgba(88, 164, 176, 0) 70%);
+            top: -300px; left: -300px;
+            transition: transform 0.2s cubic-bezier(0.2, 0, 0.2, 1);
+        }
+
+        .b2 {
+            width: 450px;
+            height: 450px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, rgba(88, 164, 176, 0) 70%);
+            top: -225px; left: -225px;
+            transition: transform 0.4s cubic-bezier(0.2, 0, 0.2, 1);
+            mix-blend-mode: overlay;
+        }
+
+        /* --- STATIC NOISE --- */
+        .static-background {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 9998; pointer-events: none; 
+        }
+
+        .static-background:after {
+            content: "";
+            background-image: url("https://upload.wikimedia.org/wikipedia/commons/7/76/1k_Dissolve_Noise_Texture.png");
+            height: 300%; width: 300%;
+            position: fixed;
+            opacity: 0.1;
+            animation: animateGrain 8s steps(10) infinite;
+        }
+
+        @keyframes animateGrain {
+            0%, 100% { transform: translate(0, 0); }
+            10%, 30%, 50%, 70%, 90% { transform: translate(-5%, -10%); }
+            20%, 40%, 60%, 80% { transform: translate(-15%, -20%); }
+        }
+
+        /* --- UPDATED HERO SECTION --- */
+        .hero-section {
+            min-height: 100vh;
+            width: 100%;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 0 10%;
+            box-sizing: border-box;
+        }
+
+        /* New Grid Layout for Hero Content */
+        .content {
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 50px;
+            align-items: center;
+            width: 100%;
+            max-width: 1200px;
+            transition: transform 0.6s cubic-bezier(0.68, -0.55, 0.27, 1.55), opacity 0.5s ease;
+            position: relative;
+            z-index: 20; 
+        }
+
+        .content.slide-out {
+            transform: translateX(100vw);
+            opacity: 0;
+        }
+
+        .hero-text-wrapper {
+            text-align: left;
+        }
+
+        .content h1 { 
+            font-size: 3.5em; 
+            margin-bottom: 20px; 
+            line-height: 1.1;
+        }
+        
+        .content p { 
+            font-size: 1.5em; 
+            margin-top: 0; 
+            color: #ccc;
+            font-weight: 300;
+            border-left: 3px solid #58a4b0;
+            padding-left: 20px;
+        }
+
+        /* --- UPDATED LINKS (GLASS CARDS) --- */
+        .links { 
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 0;
+        }
+
+        .links a {
+            color: #FFFFFF;
+            text-decoration: none;
+            padding: 20px 30px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(5px);
+            border-radius: 12px;
+            font-size: 1.1em;
+            font-weight: 500;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Hover Effect for Cards */
+        .links a:hover {
+            background: rgba(88, 164, 176, 0.15);
+            border-color: #58a4b0;
+            transform: translateX(10px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        /* Arrow animation inside link */
+        .links a::after {
+            content: "→";
+            opacity: 0;
+            transform: translateX(-10px);
+            transition: all 0.3s ease;
+            color: #58a4b0;
+        }
+
+        .links a:hover::after {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* Remove the old underline effect since we are using cards now */
+        .links a:before { display: none; }
+
+        /* --- INTERACTIVE LETTERS --- */
+        .interactive-letter {
+            display: inline-block;
+            cursor: none;
+            transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), color 0.2s, text-shadow 0.2s;
+            will-change: transform;
+            transform-origin: bottom center;
+            padding: 0 1px;
+        }
+
+        span[style*="color"] .interactive-letter { color: inherit; }
+
+        /* --- HEADER & NAV --- */
+        .main-header {
+            position: absolute;
+            top: 25px; left: 0; width: 100%;
+            padding: 0 60px 0 30px; 
+            box-sizing: border-box; 
+            display: flex;
+            justify-content: space-between; 
+            align-items: center; 
+            z-index: 100;
+        }
+        
+        .header { display: flex; align-items: center; gap: 30px; }
+        .logo-container img { width: 150px; height: auto; display: block; }
+
+        .language-button {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(5px);
+            padding: 8px 25px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50px; 
+            color: white;
+            font-size: 0.9em;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            position: relative;
+            overflow: hidden;
+            letter-spacing: 1px;
+        }
+
+        .language-button:hover {
+            border-color: #58a4b0;
+            box-shadow: 0 0 15px rgba(88, 164, 176, 0.5);
+            transform: translateY(-2px);
+            background: rgba(88, 164, 176, 0.1);
+            color: #58a4b0;
+        }
+
+        #nav-icon2 {
+            width: 35px; height: 25px;
+            position: relative;
+            transition: .5s ease-in-out;
+            cursor: pointer;
+        }
+
+        #nav-icon2 span {
+            display: block; position: absolute;
+            height: 3px; width: 100%;
+            background: #ffffff; border-radius: 3px;
+            opacity: 1; left: 0;
+            transform-origin: left center;
+            transition: .25s ease-in-out, top 0.3s ease;
+        }
+
+        #nav-icon2 span:nth-child(1) { top: 0px; }
+        #nav-icon2 span:nth-child(2) { top: 10px; }
+        #nav-icon2 span:nth-child(3) { top: 20px; }
+        #nav-icon2:not(.open):hover span:nth-child(1) { top: -4px; }
+        #nav-icon2:not(.open):hover span:nth-child(3) { top: 24px; }
+        #nav-icon2.open span:nth-child(1) { top: 0px; left: 4px; transform: rotate(45deg); }
+        #nav-icon2.open span:nth-child(2) { width: 0%; opacity: 0; }
+        #nav-icon2.open span:nth-child(3) { top: 25px; left: 4px; transform: rotate(-45deg); }
+
+
+        /* --- FULL SCREEN MENU --- */
+        .new-content {
+            position: fixed;
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: flex-start;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            padding-left: 15%;
+            z-index: 9990; 
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            background: rgba(26,26,26, 0.95);
+        }
+
+        .new-content.show { opacity: 1; pointer-events: auto; }
+        .new-content img { width: 100px; margin-bottom: 20px; opacity: 0; transform: translateY(20px); transition: all 0.5s ease 0.1s; }
+        .new-content h2 { font-size: 2em; margin-bottom: 30px; opacity: 0; transform: translateY(20px); transition: all 0.5s ease 0.2s; color: #58a4b0; }
+        .new-content ul { list-style: none; padding: 0; margin: 0; }
+        
+        .new-content li { 
+            font-size: 4em; margin: 5px 0; font-weight: 700; 
+            opacity: 0; transform: translateX(-50px);
+            transition: all 0.5s ease; line-height: 1.1;
+        }
+
+        .new-content a {
+            color: transparent; 
+            -webkit-text-stroke: 1px rgba(255, 255, 255, 0.3);
+            text-decoration: none; transition: all 0.3s ease;
+            display: inline-block;
+        }
+
+        .new-content a:hover {
+            color: #FFFFFF; -webkit-text-stroke: 0px;
+            transform: translateX(20px);
+            text-shadow: 0 0 20px rgba(88, 164, 176, 0.6);
+        }
+        
+        .new-content span.number { font-size: 0.4em; color: #58a4b0; vertical-align: middle; margin-right: 15px; letter-spacing: 2px;}
+
+        .menu-back-btn {
+            margin-top: 40px; background: transparent;
+            border: 2px solid rgba(88, 164, 176, 0.5);
+            color: #58a4b0; padding: 10px 40px;
+            font-size: 1.2em; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 2px;
+            cursor: pointer; opacity: 0;
+            transform: translateY(20px); transition: all 0.3s ease;
+        }
+
+        .menu-back-btn:hover { background: #58a4b0; color: #FFFFFF; box-shadow: 0 0 30px rgba(88, 164, 176, 0.4); }
+
+        .new-content.show img { opacity: 1; transform: translateY(0); }
+        .new-content.show h2 { opacity: 1; transform: translateY(0); }
+        .new-content.show li:nth-child(1) { opacity: 1; transform: translateX(0); transition-delay: 0.1s; }
+        .new-content.show li:nth-child(2) { opacity: 1; transform: translateX(0); transition-delay: 0.2s; }
+        .new-content.show li:nth-child(3) { opacity: 1; transform: translateX(0); transition-delay: 0.3s; }
+        .new-content.show li:nth-child(4) { opacity: 1; transform: translateX(0); transition-delay: 0.4s; }
+        .new-content.show li:nth-child(5) { opacity: 1; transform: translateX(0); transition-delay: 0.5s; }
+        .new-content.show .menu-back-btn { opacity: 1; transform: translateY(0); transition-delay: 0.7s; }
+
+        /* --- GLOBAL --- */
+        .custom-cursor {
+            width: 20px; height: 20px;
+            border: 2px solid #FFFFFF;
+            border-radius: 50%;
+            position: fixed; pointer-events: none;
+            animation: scopeAnimation 0.3s infinite alternate;
+            z-index: 9999; transition: transform 0.1s;
+        }
+
+        .custom-cursor.hover {
+            width: 30px; height: 30px;
+            background-color: rgba(255, 255, 255, 0.5); border: 0;
+        }
+
+        @keyframes scopeAnimation {
+            from { transform: scale(1); }
+            to { transform: scale(1.2); }
+        }
+
+        a, button { cursor: none; }
+
+        .content-section {
+            min-height: 100vh; padding: 100px 10%;
+            box-sizing: border-box; position: relative;
+            z-index: 10; border-top: 1px solid rgba(255,255,255,0.1);
+            background: rgba(26, 26, 26, 0.5); 
+        }
+
+        .section-title {
+            font-size: 2.5em; margin-bottom: 40px;
+            color: #58a4b0; border-bottom: 2px solid #58a4b0;
+            display: inline-block; padding-bottom: 10px;
+        }
+
+        .edu-item, .work-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 30px; margin-bottom: 30px;
+            border-left: 3px solid #58a4b0;
+            transition: transform 0.3s ease;
+        }
+
+        .edu-item:hover, .work-item:hover {
+            transform: translateX(10px); background: rgba(255, 255, 255, 0.1);
+        }
+        .edu-item h3, .work-item h3 { margin-top: 0; font-size: 1.5em; }
+        .edu-item span, .work-item span { color: #888; font-size: 0.9em; display: block; margin-bottom: 10px; }
+
+        /* --- CERTIFICATES --- */
+        .cert-grid {
+            display: flex; overflow-x: hidden; gap: 20px; 
+            margin: 50px auto; padding: 40px 0;
+            max-width: 900px; width: 100%;
+            cursor: default; align-items: center; scroll-behavior: auto; 
+        }
+
+        a.cert-card {
+            background: rgba(255, 255, 255, 0.05);
+            min-width: 280px; width: 280px;
+            aspect-ratio: 1 / 1.1; display: flex;
+            flex-direction: column; padding: 20px;
+            border: 1px solid rgba(88, 164, 176, 0.2);
+            text-decoration: none;
+            transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), 
+                        opacity 0.4s ease, border-color 0.4s ease, background-color 0.4s ease;
+            transform: scale(0.8); opacity: 0.3; filter: blur(1px); 
+            flex-shrink: 0; cursor: none; box-sizing: border-box;
+        }
+
+        a.cert-card.active {
+            transform: scale(1.1); opacity: 1; filter: blur(0);
+            border-color: #58a4b0; background: rgba(88, 164, 176, 0.1);
+            z-index: 5; box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+        }
+
+        .cert-img-container {
+            width: 100%; height: 60%; margin-bottom: 15px;
+            display: flex; align-items: center; justify-content: center;
+            overflow: hidden; background: rgba(255,255,255,0.02); border-radius: 4px;
+        }
+
+        .cert-img-container img {
+            width: 100%; height: 100%; object-fit: contain; transition: transform 0.5s;
+        }
+
+        a.cert-card:hover .cert-img-container img { transform: scale(1.05); }
+
+        .cert-info h4 { margin: 0 0 5px 0; font-size: 1em; color: #FFFFFF; }
+        .cert-info p { margin: 0; font-size: 0.8em; color: #58a4b0; }
+        .cert-info span { font-size: 0.7em; color: #888; display: block; margin-top: 5px; }
+
+        /* --- REDESIGNED CONTACT SECTION --- */
+        .contact-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            width: 100%;
+        }
+        
+        .contact-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 25px;
+            border-radius: 12px;
+            text-decoration: none;
+            color: #fff;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            backdrop-filter: blur(5px);
+        }
+
+        .contact-card:hover {
+            background: rgba(88, 164, 176, 0.15);
+            border-color: #58a4b0;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .contact-card h4 {
+            color: #58a4b0;
+            margin: 0 0 10px 0;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .contact-card span {
+            font-size: 1.1em;
+            font-weight: 500;
+        }
+
+        /* --- MEDIA QUERIES --- */
+        @media (max-width: 900px) {
+            .content {
+                grid-template-columns: 1fr;
+                text-align: center;
+                gap: 40px;
+            }
+            .hero-text-wrapper { text-align: center; }
+            .content h1 { font-size: 2.5em; }
+            .content p { 
+                border-left: none; 
+                border-bottom: 2px solid #58a4b0;
+                padding-left: 0;
+                padding-bottom: 10px;
+                display: inline-block;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="interactive-background">
+        <div class="bubble b1"></div>
+        <div class="bubble b2"></div>
+    </div>
+
+    <div class="static-background"></div>
+
+    <div class="main-header">
+        <div class="logo-container">
+            <a href="mailto:mr.santosc259@gmail.com">
+                <img src="Images/logo.png" alt="Logo">
+            </a>
+        </div>
+        <div class="header">
+            <button class="language-button" id="lang-btn">EN</button>
+            <div id="nav-icon2">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="hero-section" id="home">
+        <div class="content">
+            <div class="hero-text-wrapper">
+                <h1 data-translate="hero_title">Hi! I'm Rigel Santos<br>But you can call me<br><span style="color:#58a4b0;">MrAres259</span></h1>
+                <p data-translate="hero_subtitle">Technical Account Manager Intern</p>
+            </div>
+            
+            <div class="links">
+                <a href="#education" data-translate="hero_edu_link">Education</a>
+                <a href="#work" data-translate="hero_work_link">Experience</a>
+                <a href="#certificates" data-translate="hero_cert_link">Certifications</a>
+                <a href="#contact" data-translate="hero_contact_link">Contact me</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="new-content">
+        <img src="Images/logo.png" alt="Logo">
+        <h2>Mr.Ares259</h2>
+        <ul>
+            <li><a href="#home"><span class="number">01.</span> <span data-translate="menu_home">Home</span></a></li>
+            <li><a href="#education"><span class="number">02.</span> <span data-translate="menu_edu">Education</span></a></li>
+            <li><a href="#work"><span class="number">03.</span> <span data-translate="menu_work">Experience</span></a></li>
+            <li><a href="#certificates"><span class="number">04.</span> <span data-translate="menu_certs">Certificates</span></a></li>
+            <li><a href="#contact"><span class="number">05.</span> <span data-translate="menu_contact">Contact</span></a></li>
+        </ul>
+        <button class="menu-back-btn" id="close-menu-btn" data-translate="menu_back">← GO BACK</button>
+    </div>
+
+    <section id="education" class="content-section">
+        <h2 class="section-title" data-translate="edu_title">Education</h2>
+        <div class="edu-item">
+            <h3 data-translate="edu_1_title">Telecom, Systems & Electronics Engineering</h3>
+            <h3 data-translate="edu_1_date">Universidad Nacional Autónoma de México | 2020 - 2026</h3>
+            <p data-translate="edu_1_desc">Specialized in Telecommunications, Coding, and Networking.</p>
+        </div>
+        <div class="edu-item">
+            <h3 data-translate="edu_2_title">Computer Technician</h3>
+            <span data-translate="edu_2_date">Universidad Nacional Autónoma de México (ENP 9) | 2017 - 2019</span>
+            <p data-translate="edu_2_desc">Foundational technical training in computing and systems.</p>
+        </div>
+    </section>
+
+    <section id="work" class="content-section">
+        <h2 class="section-title" data-translate="work_title">Professional Experience</h2>
+        
+        <div class="work-item">
+            <h3 data-translate="work_new_title">Technical Account Manager Intern</h3>
+            <span data-translate="work_new_date">Dec 15, 2025 - Present | Huawei Technologies Mexico | Mexico City</span>
+            <p data-translate="work_new_desc">Managing technical accounts and cloud solutions.</p>
+        </div>
+
+        <div class="work-item">
+            <h3 data-translate="work_1_title">IT Support Technician (Internship)</h3>
+            <span data-translate="work_1_date">2020 - Nov 2025 | Mexico City</span>
+            <p data-translate="work_1_desc">Maintenance of electronic devices, OS management, and cybersecurity implementation.</p>
+        </div>
+        <div class="work-item">
+            <h3 data-translate="work_2_title">Customer Care Agent</h3>
+            <span data-translate="work_2_date">2020 - 2021 | Teleperformance</span>
+            <p data-translate="work_2_desc">Technical troubleshooting for customer hardware and software issues.</p>
+        </div>
+    </section>
+
+    <section id="certificates" class="content-section">
+        <h2 class="section-title" data-translate="cert_title">Certifications</h2>
+        
+        <div class="cert-grid" id="infinite-scroll">
+            
+            <a href="https://www.credly.com/badges/53475eec-f46d-44d5-b9bf-f61fff271c29" target="_blank" class="cert-card">
+                <div class="cert-img-container">
+                    <img src="Images/google_ux.png" alt="Google UX Design">
+                </div>
+                <div class="cert-info">
+                    <h4 data-translate="c1_t">Google UX Design Certificate</h4>
+                    <p>Coursera</p>
+                    <span data-translate="c1_d">Issued Mar 30, 2023</span>
+                </div>
+            </a>
+
+            <a href="https://www.credly.com/badges/0d8c4c4f-bb48-4310-be03-be1b26b8d6ca" target="_blank" class="cert-card">
+                <div class="cert-img-container">
+                    <img src="Images/google_it.png" alt="Google IT Support">
+                </div>
+                <div class="cert-info">
+                    <h4 data-translate="c2_t">Google IT Support Certificate</h4>
+                    <p>Coursera</p>
+                    <span data-translate="c2_d">Issued Feb 12, 2024</span>
+                </div>
+            </a>
+
+            <a href="https://www.credly.com/badges/58c004e9-65fc-4127-9da0-36bd323fa082" target="_blank" class="cert-card">
+                <div class="cert-img-container">
+                    <img src="Images/git_github.png" alt="Git and GitHub">
+                </div>
+                <div class="cert-info">
+                    <h4 data-translate="c3_t">Git and GitHub Essentials</h4>
+                    <p>IBM / Coursera</p>
+                    <span data-translate="c3_d">Issued Apr 12, 2023</span>
+                </div>
+            </a>
+
+            <a href="https://www.credly.com/badges/40cdeeb1-2ff9-4e9b-853c-24b11a001c9e" target="_blank" class="cert-card">
+                <div class="cert-img-container">
+                    <img src="Images/net_athon.png" alt="Networking Learn-A-Thon">
+                </div>
+                <div class="cert-info">
+                    <h4 data-translate="c4_t">Networking Academy Learn-A-Thon 2025</h4>
+                    <p>Cisco</p>
+                    <span data-translate="c4_d">Issued Jun 27, 2025</span>
+                </div>
+            </a>
+
+            <a href="https://www.credly.com/badges/40cdeeb1-2ff9-4e9b-853c-24b11a001c9e" target="_blank" class="cert-card">
+                <div class="cert-img-container">
+                    <img src="Images/net_basics.png" alt="Networking Basics">
+                </div>
+                <div class="cert-info">
+                    <h4 data-translate="c5_t">Networking Basics</h4>
+                    <p>Cisco</p>
+                    <span data-translate="c5_d">Issued Oct 20, 2025</span>
+                </div>
+            </a>
+
+            <a href="#" target="https://www.skills.google/public_profiles/423a0a4c-eb10-4534-93b6-ab302b738f23/badges/2086098" class="cert-card">
+                <div class="cert-img-container">
+                    <img src="Images/google_cloud.png" alt="Associate Cloud Engineer">
+                </div>
+                <div class="cert-info">
+                    <h4 data-translate="c6_t">Associate Cloud Engineer (Course)</h4>
+                    <p>Google Cloud Academy</p>
+                    <span data-translate="c6_d">Issued 2023</span>
+                </div>
+            </a>
+
+        </div>
+    </section>
+
+    <section id="contact" class="content-section">
+        <h2 class="section-title" data-translate="contact_title">Contact</h2>
+        <div class="contact-grid">
+            <div class="contact-card">
+                <h4 data-translate="contact_loc_label">Location</h4>
+                <span data-translate="contact_loc">Mexico City, Mexico</span>
+            </div>
+            <a href="https://wa.me/qr/H45F62ZJYFVTI1" target="_blank" class="contact-card">
+                <h4 data-translate="contact_phone_label">Phone</h4>
+                <span>+52 472 341 0774</span>
+            </a>
+            <a href="mailto:mr.santosc259@gmail.com" class="contact-card">
+                <h4 data-translate="contact_email_label">Email</h4>
+                <span>mr.santosc259@gmail.com</span>
+            </a>
+            <a href="https://www.linkedin.com/in/miguel-rigel-santos-carpio-202a91172/" target="_blank" class="contact-card">
+                <h4 data-translate="contact_linkedin_label">LinkedIn</h4>
+                <span data-translate="contact_linkedin_text">View Profile</span>
+            </a>
+        </div>
+    </section>
+
+    <div class="custom-cursor" id="custom-cursor"></div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            // --- Navigation & UI Logic ---
+            const navIcon = $('#nav-icon2');
+            const content = $('.content');
+            const newContent = $('.new-content');
+            const closeBtn = $('#close-menu-btn');
+            let isMenuOpen = false;
+
+            // TOGGLE MENU FUNCTION
+            function toggleMenu(forceClose = false) {
+                if(forceClose) {
+                    isMenuOpen = false;
+                } else {
+                    isMenuOpen = !isMenuOpen;
+                }
+
+                if (isMenuOpen) {
+                    navIcon.addClass('open');
+                    content.addClass('slide-out');
+                    newContent.addClass('show');
+                } else {
+                    navIcon.removeClass('open');
+                    content.removeClass('slide-out');
+                    newContent.removeClass('show');
+                }
+            }
+
+            // Click on Burger
+            navIcon.click(function(){ toggleMenu(); });
+
+            // Click on Menu Links (Auto-Close)
+            $('.new-content a').click(function(){ toggleMenu(true); });
+
+            // Click on NEW Back Button
+            closeBtn.click(function(){ toggleMenu(true); });
+
+            // --- CUSTOM CURSOR & BUBBLES LOGIC ---
+            const customCursor = $('#custom-cursor');
+            const bubble1 = $('.b1');
+            const bubble2 = $('.b2');
+
+            $(document).on('mousemove', function(e){
+                const x = e.clientX;
+                const y = e.clientY;
+                
+                // Update Custom Cursor
+                customCursor.css({ left: x + 'px', top: y + 'px' });
+
+                // Update Bubbles
+                bubble1.css('transform', `translate(${x}px, ${y}px)`);
+                bubble2.css('transform', `translate(${x}px, ${y}px)`);
+            });
+
+            // Update Hover State Logic to include new interactive letters
+            function bindHoverCursor() {
+                // ADDED: .contact-card to hover effects
+                $('a, button, #nav-icon2, .edu-item, .work-item, .cert-card, .interactive-letter, .contact-card').hover(
+                    function() { customCursor.addClass('hover'); },
+                    function() { customCursor.removeClass('hover'); }
+                );
+            }
+            bindHoverCursor();
+
+            // --- INFINITE SNAP SCROLL LOGIC ---
+            const scrollContainer = document.getElementById("infinite-scroll");
+            let cards = Array.from(scrollContainer.children);
+            const originalCount = cards.length;
+
+            const cardWidth = 280; 
+            const gap = 20; 
+            const stride = cardWidth + gap;
+
+            // Create Clones
+            cards.slice().reverse().forEach(card => {
+                const cloneBefore = card.cloneNode(true);
+                cloneBefore.classList.add('clone-item');
+                scrollContainer.insertBefore(cloneBefore, scrollContainer.firstChild);
+            });
+
+            cards.forEach(card => {
+                const cloneAfter = card.cloneNode(true);
+                cloneAfter.classList.add('clone-item');
+                scrollContainer.appendChild(cloneAfter);
+            });
+
+            // Initial State Setup
+            let currentIndex = originalCount; 
+            let isAnimating = false;
+
+            function centerCard(index, smooth = true) {
+                const containerWidth = scrollContainer.clientWidth;
+                const position = (index * stride) - (containerWidth / 2) + (cardWidth / 2);
+
+                scrollContainer.scrollTo({
+                    left: position,
+                    behavior: smooth ? 'smooth' : 'auto'
+                });
+
+                const allCards = Array.from(scrollContainer.children);
+                allCards.forEach(c => c.classList.remove('active'));
+                
+                if(allCards[index]) allCards[index].classList.add('active');
+            }
+
+            setTimeout(() => {
+                centerCard(currentIndex, false);
+            }, 50);
+
+            // Wheel Event
+            scrollContainer.addEventListener("wheel", (evt) => {
+                evt.preventDefault();
+                if(isAnimating) return; 
+                
+                if (evt.deltaY > 0) { currentIndex++; } 
+                else { currentIndex--; }
+
+                isAnimating = true;
+                centerCard(currentIndex, true);
+
+                setTimeout(() => {
+                    checkInfiniteLoop();
+                    isAnimating = false;
+                }, 450); 
+            });
+
+            // Infinite Loop Check
+            function checkInfiniteLoop() {
+                if (currentIndex >= (originalCount * 2)) {
+                    currentIndex = originalCount;
+                    centerCard(currentIndex, false); 
+                } 
+                else if (currentIndex < originalCount) {
+                    currentIndex = (originalCount * 2) - 1;
+                    centerCard(currentIndex, false); 
+                }
+            }
+
+            window.addEventListener('resize', () => {
+                centerCard(currentIndex, false);
+            });
+
+            // --- TEXT PROXIMITY EFFECT (THE "WAVE") ---
+            function bindTextProximity() {
+                // UPDATED: Listen on the whole content container, not just H1
+                const heroContainer = $('.content');
+                const letters = $('.interactive-letter');
+
+                // Configuration for the effect
+                const maxDist = 120; // How far the effect reaches (pixels)
+                const maxScale = 1.5; // How big the center letter gets
+
+                heroContainer.on('mousemove', function(e) {
+                    const mouseX = e.clientX;
+                    const mouseY = e.clientY;
+
+                    letters.each(function() {
+                        const rect = this.getBoundingClientRect();
+                        // Get center of letter
+                        const letterX = rect.left + rect.width / 2;
+                        const letterY = rect.top + rect.height / 2;
+
+                        // Calculate Distance
+                        const dist = Math.hypot(mouseX - letterX, mouseY - letterY);
+
+                        if (dist < maxDist) {
+                            // Calculate scale based on distance (closer = bigger)
+                            // We use a curve (Math.pow) to make it look smoother than linear
+                            const intensity = 1 - (dist / maxDist);
+                            const scale = 1 + ((maxScale - 1) * Math.pow(intensity, 2)); // Ease out Quad
+                            
+                            // Highlight color slightly when active
+                            let colorStyle = "";
+                            if ($(this).parent().css('color') !== 'rgb(255, 255, 255)') {
+                                // If it's the blue name, keep it blue but maybe brighten
+                                colorStyle = ""; 
+                            } else {
+                                // If it's white text, turn slightly blueish
+                                colorStyle = `color: rgba(255, 255, 255, ${0.5 + intensity}); text-shadow: 0 0 ${10*intensity}px rgba(88, 164, 176, 0.5);`;
+                            }
+
+                            // Apply transform - remove transition for instant response
+                            $(this).css({
+                                'transform': `scale(${scale}) translateY(${-(scale-1)*10}px)`,
+                                'transition': 'none', // Critical for smoothness
+                                ...colorStyle ? { 'text-shadow': `0 0 ${10*intensity}px rgba(88, 164, 176, 0.8)` } : {}
+                            });
+                        } else {
+                            // Reset if out of range (but allow transition to smooth it out)
+                            $(this).css({
+                                'transform': 'scale(1) translateY(0)',
+                                'transition': 'transform 0.3s ease, color 0.3s, text-shadow 0.3s', // Smooth return
+                                'text-shadow': 'none'
+                            });
+                        }
+                    });
+                });
+
+                // Reset all when mouse leaves the container area
+                heroContainer.on('mouseleave', function() {
+                    letters.css({
+                        'transform': 'scale(1) translateY(0)',
+                        'transition': 'transform 0.3s ease, color 0.3s, text-shadow 0.3s',
+                        'text-shadow': 'none'
+                    });
+                });
+            }
+
+            // --- TRANSLATIONS LOGIC ---
+            function makeTextInteractive(element) {
+                const contents = element.contents();
+                element.empty();
+
+                contents.each(function() {
+                    if (this.nodeType === 3) { // Text node
+                        const text = this.textContent;
+                        const html = text.split('').map(char => {
+                            if(char.trim() === '') return char; 
+                            return `<span class="interactive-letter">${char}</span>`;
+                        }).join('');
+                        element.append(html);
+                    } else {
+                        const elem = $(this);
+                        if(elem.is('span')) {
+                            const innerText = elem.text();
+                            const innerHtml = innerText.split('').map(char => {
+                                return `<span class="interactive-letter">${char}</span>`;
+                            }).join('');
+                            elem.html(innerHtml);
+                            element.append(elem);
+                        } else {
+                            element.append(elem);
+                        }
+                    }
+                });
+                // Rebind generic cursor hover
+                bindHoverCursor();
+            }
+
+            const translations = {
+                en: {
+                    hero_title: "Hi! I'm Rigel Santos<br>But you can call me<br><span style='color:#58a4b0;'>MrAres259</span>",
+                    hero_subtitle: "Technical Account Manager Intern",
+                    
+                    hero_edu_link: "Education",
+                    hero_work_link: "Experience",
+                    hero_cert_link: "Certifications",
+                    hero_contact_link: "Contact me",
+                    
+                    menu_home: "Home", menu_edu: "Education", menu_work: "Experience", menu_certs: "Certificates", menu_contact: "Contact",
+                    menu_back: "← GO BACK",
+
+                    edu_title: "Education",
+                    edu_1_title: "Telecom, Systems & Electronics Engineering",
+                    // UPDATED: Date and location
+                    edu_1_date: "Universidad Nacional Autónoma de México | 2020 - 2026",
+                    // UPDATED: Specializations
+                    edu_1_desc: "Specialized in Telecommunications, Coding, and Networking.",
+                    edu_2_title: "Computer Technician",
+                    edu_2_date: "Universidad Nacional Autónoma de México (ENP 9) | 2017 - 2019",
+                    edu_2_desc: "Foundational technical training in computing and systems.",
+                    work_title: "Professional Experience",
+                    work_new_title: "Technical Account Manager Intern",
+                    // UPDATED: Added Company Name here to fix the display issue
+                    work_new_date: "Dec 15, 2025 - Present | Huawei Technologies Mexico | Mexico City",
+                    work_new_desc: "Managing technical accounts and cloud solutions.",
+                    work_1_title: "IT Support Technician (Internship)",
+                    work_1_date: "2020 - Nov 2025 | Mexico City",
+                    work_1_desc: "Maintenance of electronic devices and OS management (Linux/Windows).",
+                    work_2_title: "Customer Care Agent",
+                    work_2_date: "Teleperformance | 2020 - 2021",
+                    work_2_desc: "Technical troubleshooting for customer hardware and software issues.",
+                    cert_title: "Certifications",
+                    c1_t: "Google UX Design Certificate", c1_d: "Issued Mar 30, 2023",
+                    c2_t: "Google IT Support Certificate", c2_d: "Issued Feb 12, 2024",
+                    c3_t: "Git and GitHub Essentials", c3_d: "Issued Apr 12, 2023",
+                    c4_t: "Networking Academy Learn-A-Thon 2025", c4_d: "Issued Jun 27, 2025",
+                    c5_t: "Networking Basics", c5_d: "Issued Oct 20, 2025",
+                    c6_t: "Associate Cloud Engineer", c6_d: "Issued 2023",
+                    contact_title: "Contact",
+                    contact_loc_label: "Location",
+                    contact_loc: "Mexico City, Mexico",
+                    contact_phone_label: "Phone",
+                    contact_email_label: "Email",
+                    contact_linkedin_label: "LinkedIn",
+                    contact_linkedin_text: "View Profile"
+                },
+                es: {
+                    hero_title: "¡Hola! Soy Rigel Santos<br>Pero puedes decirme<br><span style='color:#58a4b0;'>MrAres259</span>",
+                    hero_subtitle: "Pasante de Technical Account Manager",
+                    hero_edu_link: "Esta es mi educación",
+                    hero_work_link: "Mi experiencia",
+                    hero_cert_link: "Certificaciones",
+                    hero_contact_link: "Contáctame",
+                    
+                    menu_home: "Inicio", menu_edu: "Educación", menu_work: "Experiencia", menu_certs: "Certificados", menu_contact: "Contacto",
+                    menu_back: "← REGRESAR",
+
+                    edu_title: "Educación",
+                    edu_1_title: "Ingeniería en Telecomunicaciones, Sistemas y Electrónica",
+                    // UPDATED: Date and location (Spanish)
+                    edu_1_date: "Universidad Nacional Autónoma de México | 2020 - 2026",
+                    // UPDATED: Specializations (Spanish)
+                    edu_1_desc: "Especializado en Telecomunicaciones, Programación y Redes.",
+                    edu_2_title: "Técnico en Computación",
+                    edu_2_date: "Universidad Nacional Autónoma de México (ENP 9) | 2017 - 2019",
+                    edu_2_desc: "Formación técnica fundamental en computación y sistemas.",
+                    work_title: "Experiencia Profesional",
+                    work_new_title: "Pasante de Technical Account Manager",
+                    // UPDATED: Added Company Name here (Spanish)
+                    work_new_date: "15 Dic 2025 - Presente | Huawei Technologies México | Ciudad de México",
+                    work_new_desc: "Gestión de cuentas técnicas y soluciones en la nube.",
+                    work_1_title: "Técnico de Soporte TI (Pasantía)",
+                    work_1_date: "2020 - Nov 2025 | CDMX",
+                    work_1_desc: "Mantenimiento de dispositivos electrónicos y gestión de SO (Linux/Windows).",
+                    work_2_title: "Agente de Atención al Cliente",
+                    work_2_date: "Teleperformance | 2020 - 2021",
+                    work_2_desc: "Resolución de problemas técnicos de hardware y software.",
+                    cert_title: "Certificaciones",
+                    c1_t: "Certificado de Diseño UX de Google", c1_d: "Emitido el 30 de mar. de 2023",
+                    c2_t: "Certificado de Soporte de TI de Google", c2_d: "Emitido el 12 de feb. de 2024",
+                    c3_t: "Esenciales de Git y GitHub", c3_d: "Emitido el 12 de abr. de 2023",
+                    c4_t: "Networking Academy Learn-A-Thon 2025", c4_d: "Emitido el 27 de jun. de 2025",
+                    c5_t: "Conceptos Básicos de Redes", c5_d: "Emitido el 20 de oct. de 2025",
+                    c6_t: "Ingeniero de Nube Asociado", c6_d: "Emitido en 2023",
+                    contact_title: "Contacto",
+                    contact_loc_label: "Ubicación",
+                    contact_loc: "Ciudad de México, México",
+                    contact_phone_label: "Teléfono",
+                    contact_email_label: "Correo",
+                    contact_linkedin_label: "LinkedIn",
+                    contact_linkedin_text: "Ver Perfil"
+                }
+            };
+
+            let currentLang = localStorage.getItem('siteLanguage') || 'en';
+
+            function updateContent(lang) {
+                $('#lang-btn').text(lang === 'en' ? 'EN' : 'ES');
+                
+                $('[data-translate]').each(function() {
+                    const key = $(this).data('translate');
+                    if(translations[lang][key]) { 
+                        $(this).html(translations[lang][key]); 
+                        
+                        // UPDATED: Check for both title AND subtitle keys
+                        if (key === 'hero_title' || key === 'hero_subtitle') {
+                            makeTextInteractive($(this));
+                        }
+                    }
+                });
+
+                // RE-BIND the proximity physics after all text is prepared
+                bindTextProximity();
+            }
+
+            updateContent(currentLang);
+
+            $('#lang-btn').click(function() {
+                currentLang = (currentLang === 'en') ? 'es' : 'en';
+                localStorage.setItem('siteLanguage', currentLang);
+                updateContent(currentLang);
+            });
+        });
+    </script>
+</body>
+</html>
