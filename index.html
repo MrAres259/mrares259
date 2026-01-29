@@ -777,7 +777,7 @@
                 bindHoverCursor();
             }
 
-            // --- INFINITE SNAP SCROLL LOGIC (WITH TOUCH) ---
+            // --- INFINITE SNAP SCROLL LOGIC (WITH AUTO-SLIDE) ---
             const scrollContainer = document.getElementById("infinite-scroll");
             let cards = Array.from(scrollContainer.children);
             const originalCount = cards.length;
@@ -834,35 +834,74 @@
                     centerCard(currentIndex, false); 
                 }
             }
+            
+            function triggerScroll() {
+                isAnimating = true;
+                centerCard(currentIndex, true);
+                setTimeout(() => {
+                    checkInfiniteLoop();
+                    isAnimating = false;
+                }, 450);
+            }
+
+            // --- AUTO SLIDE IMPLEMENTATION ---
+            let autoSlideInterval;
+            const autoSlideDelay = 3000; // Change this to speed up/slow down (in ms)
+
+            function startAutoSlide() {
+                // Clear any existing interval to prevent duplicates
+                clearInterval(autoSlideInterval);
+                autoSlideInterval = setInterval(() => {
+                    if (!isAnimating) {
+                        currentIndex++; // Move to next card
+                        triggerScroll();
+                    }
+                }, autoSlideDelay);
+            }
+
+            function stopAutoSlide() {
+                clearInterval(autoSlideInterval);
+            }
+
+            // Start automatically
+            startAutoSlide();
+
+            // Pause on Hover/Touch so the user can click links
+            $(scrollContainer).on('mouseenter touchstart', function() {
+                stopAutoSlide();
+            });
+
+            $(scrollContainer).on('mouseleave touchend', function() {
+                startAutoSlide();
+            });
+            // ---------------------------------
 
             // Wheel Event (PC)
             scrollContainer.addEventListener("wheel", (evt) => {
                 evt.preventDefault();
+                stopAutoSlide(); // Pause while manually scrolling
                 if(isAnimating) return; 
                 
                 if (evt.deltaY > 0) { currentIndex++; } 
                 else { currentIndex--; }
 
-                isAnimating = true;
-                centerCard(currentIndex, true);
-
-                setTimeout(() => {
-                    checkInfiniteLoop();
-                    isAnimating = false;
-                }, 450); 
+                triggerScroll();
+                // Note: Auto slide restarts on mouseleave
             });
 
-            // --- ADDED: TOUCH SUPPORT FOR PHONES ---
+            // --- TOUCH SUPPORT FOR PHONES ---
             let touchStartX = 0;
             let touchEndX = 0;
 
             scrollContainer.addEventListener('touchstart', e => {
                 touchStartX = e.changedTouches[0].screenX;
+                stopAutoSlide();
             }, {passive: true});
 
             scrollContainer.addEventListener('touchend', e => {
                 touchEndX = e.changedTouches[0].screenX;
                 handleSwipe();
+                startAutoSlide();
             }, {passive: true});
 
             function handleSwipe() {
@@ -881,15 +920,6 @@
                     currentIndex--;
                     triggerScroll();
                 }
-            }
-
-            function triggerScroll() {
-                isAnimating = true;
-                centerCard(currentIndex, true);
-                setTimeout(() => {
-                    checkInfiniteLoop();
-                    isAnimating = false;
-                }, 450);
             }
 
             window.addEventListener('resize', () => {
@@ -1105,4 +1135,3 @@
     </script>
 </body>
 </html>
-
