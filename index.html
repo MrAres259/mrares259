@@ -777,7 +777,7 @@
                 bindHoverCursor();
             }
 
-            // --- INFINITE SNAP SCROLL LOGIC (WITH AUTO-SLIDE) ---
+            // --- INFINITE SNAP SCROLL LOGIC (WITH TOUCH & AUTO PLAY) ---
             const scrollContainer = document.getElementById("infinite-scroll");
             let cards = Array.from(scrollContainer.children);
             const originalCount = cards.length;
@@ -834,7 +834,7 @@
                     centerCard(currentIndex, false); 
                 }
             }
-            
+
             function triggerScroll() {
                 isAnimating = true;
                 centerCard(currentIndex, true);
@@ -844,49 +844,50 @@
                 }, 450);
             }
 
-            // --- AUTO SLIDE IMPLEMENTATION ---
-            let autoSlideInterval;
-            const autoSlideDelay = 3000; // Change this to speed up/slow down (in ms)
-
-            function startAutoSlide() {
-                // Clear any existing interval to prevent duplicates
-                clearInterval(autoSlideInterval);
-                autoSlideInterval = setInterval(() => {
+            // --- AUTO PLAY LOGIC (NEW) ---
+            let autoPlayTimer;
+            
+            function startAutoPlay() {
+                // Clear any existing timer
+                stopAutoPlay();
+                // Set interval to auto-advance every 3 seconds
+                autoPlayTimer = setInterval(() => {
                     if (!isAnimating) {
-                        currentIndex++; // Move to next card
+                        currentIndex++; // Move to next card (Flows Left)
                         triggerScroll();
                     }
-                }, autoSlideDelay);
+                }, 3000);
             }
 
-            function stopAutoSlide() {
-                clearInterval(autoSlideInterval);
+            function stopAutoPlay() {
+                clearInterval(autoPlayTimer);
             }
 
-            // Start automatically
-            startAutoSlide();
+            // Initialize Auto Play
+            startAutoPlay();
 
-            // Pause on Hover/Touch so the user can click links
-            $(scrollContainer).on('mouseenter touchstart', function() {
-                stopAutoSlide();
-            });
-
-            $(scrollContainer).on('mouseleave touchend', function() {
-                startAutoSlide();
-            });
-            // ---------------------------------
+            // Pause on Hover
+            $(scrollContainer).hover(
+                function() { stopAutoPlay(); },
+                function() { startAutoPlay(); }
+            );
 
             // Wheel Event (PC)
             scrollContainer.addEventListener("wheel", (evt) => {
                 evt.preventDefault();
-                stopAutoSlide(); // Pause while manually scrolling
+                // Pause auto play when user manually scrolls
+                stopAutoPlay();
+
                 if(isAnimating) return; 
                 
                 if (evt.deltaY > 0) { currentIndex++; } 
                 else { currentIndex--; }
 
                 triggerScroll();
-                // Note: Auto slide restarts on mouseleave
+
+                // Restart autoplay after 2 seconds of inactivity
+                clearTimeout(window.wheelRestartTimer);
+                window.wheelRestartTimer = setTimeout(startAutoPlay, 2000);
             });
 
             // --- TOUCH SUPPORT FOR PHONES ---
@@ -894,14 +895,15 @@
             let touchEndX = 0;
 
             scrollContainer.addEventListener('touchstart', e => {
+                stopAutoPlay(); // Pause on touch
                 touchStartX = e.changedTouches[0].screenX;
-                stopAutoSlide();
             }, {passive: true});
 
             scrollContainer.addEventListener('touchend', e => {
                 touchEndX = e.changedTouches[0].screenX;
                 handleSwipe();
-                startAutoSlide();
+                // Restart autoplay after swipe finishes
+                setTimeout(startAutoPlay, 2000);
             }, {passive: true});
 
             function handleSwipe() {
